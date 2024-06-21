@@ -135,6 +135,7 @@ def gumbel_muzero_policy(
     qtransform: base.QTransform = qtransforms.qtransform_completed_by_mix_value,
     max_num_considered_actions: int = 16,
     gumbel_scale: chex.Numeric = 1.,
+    policy_scale: chex.Numeric = 1.
 ) -> base.PolicyOutput[action_selection.GumbelMuZeroExtraData]:
   """Runs Gumbel MuZero search and returns the `PolicyOutput`.
 
@@ -223,7 +224,7 @@ def gumbel_muzero_policy(
 
   # Producing action_weights usable to train the policy network.
   completed_search_logits = _mask_invalid_actions(
-      root.prior_logits + completed_qvalues, invalid_actions)
+      policy_scale * root.prior_logits + completed_qvalues, invalid_actions)
   action_weights = jax.nn.softmax(completed_search_logits)
   return base.PolicyOutput(
       action=action,
